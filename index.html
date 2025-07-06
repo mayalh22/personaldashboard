@@ -1,10 +1,110 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>My Personal Dashboard</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background-color: #f5f5f5;
+      color: #333;
+    }
+    header {
+      background-color: #4a90e2;
+      color: white;
+      padding: 1em;
+      text-align: center;
+    }
+    .container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px;
+      padding: 20px;
+    }
+    .card {
+      background: white;
+      padding: 15px;
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+    h2 {
+      margin-top: 0;
+    }
+    ul {
+      list-style: none;
+      padding-left: 0;
+    }
+    li {
+      padding: 6px 0;
+      border-bottom: 1px solid #eee;
+    }
+    input[type="text"] {
+      width: 80%;
+      padding: 8px;
+      margin-top: 10px;
+    }
+    button {
+      padding: 8px 12px;
+      margin-top: 10px;
+      cursor: pointer;
+    }
+    a {
+      display: block;
+      color: #4a90e2;
+      text-decoration: none;
+      margin-bottom: 6px;
+    }
+  </style>
 </head>
 <body>
-  <h1>Welcome to My Personal Dashboard</h1>
-  <p>This is a simple site hosted on GitHub Pages.</p>
+
+<header>
+  <h1>🧠 My Personal Dashboard</h1>
+</header>
+
+<div class="container">
+
+  <!-- To-Do List -->
+  <div class="card">
+    <h2>✅ To-Do List</h2>
+    <ul id="todo-list"></ul>
+    <input type="text" id="todo-input" placeholder="New task...">
+    <button onclick="addTodo()">Add</button>
+  </div>
+
+  <!-- Quick Links -->
+  <div class="card">
+    <h2>🔗 Quick Links</h2>
+    <a href="https://gmail.com" target="_blank">📧 Gmail</a>
+    <a href="https://calendar.google.com" target="_blank">📅 Google Calendar</a>
+    <a href="https://www.notion.so" target="_blank">🗒️ Notion</a>
+    <a href="https://github.com" target="_blank">🐱 GitHub</a>
+  </div>
+
+  <!-- Notes -->
+  <div class="card">
+    <h2>🗒️ Notes</h2>
+    <textarea id="notes" rows="8" style="width:100%;" placeholder="Write your notes here..."></textarea>
+  </div>
+
+</div>
+
+<script>
+  // Basic To-Do List
+  function addTodo() {
+    const input = document.getElementById('todo-input');
+    const list = document.getElementById('todo-list');
+    if (input.value.trim() !== '') {
+      const li = document.createElement('li');
+      li.textContent = input.value;
+      li.onclick = () => li.style.textDecoration = 'line-through';
+      list.appendChild(li);
+      input.value = '';
+    }
+  }
+</script>
+
 </body>
 </html>
