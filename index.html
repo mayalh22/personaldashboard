@@ -2,39 +2,279 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<title>Simple Dashboard Starter</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>My Personal Dashboard</title>
+
+<!-- Notion-like font: Inter -->
+<link href="https://fonts.googleapis.com/css2?family=Inter&display=swap" rel="stylesheet">
+
+<!-- Chart.js CDN -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 <style>
+  /* Your colors here: Replace these with your own */
+  :root {
+    --primary-color: #4a90e2; /* example blue */
+    --background-color: #fafafa;
+    --card-bg: white;
+    --text-color: #333;
+    --header-height: 150px;
+  }
+
   body {
-    font-family: Arial, sans-serif;
+    margin: 0;
+    font-family: 'Inter', sans-serif;
+    background: var(--background-color) url('YOUR_BG_IMAGE_URL_HERE') no-repeat center center fixed;
+    background-size: cover;
+    color: var(--text-color);
+  }
+
+  header {
+    height: var(--header-height);
+    background: url('YOUR_HEADER_IMAGE_URL_HERE') no-repeat center center;
+    background-size: contain;
+    background-color: var(--primary-color);
+  }
+
+  main {
     padding: 20px;
-    background: #f0f0f0;
+    max-width: 1100px;
+    margin: 0 auto;
   }
+
+  h1 {
+    color: var(--primary-color);
+    margin-bottom: 30px;
+    text-align: center;
+  }
+
+  .links-section {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 40px;
+    gap: 15px;
+  }
+
   .card {
-    background: #fffbdd;
-    border: 1px solid #ccc;
-    border-radius: 6px;
+    background: var(--card-bg);
+    border-radius: 8px;
     padding: 15px;
-    margin-bottom: 10px;
-    width: 300px;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+    flex: 1;
+    min-width: 220px;
   }
+
+  .card h2 {
+    margin-top: 0;
+    border-bottom: 2px solid var(--primary-color);
+    padding-bottom: 5px;
+    margin-bottom: 15px;
+  }
+
+  .card ul {
+    list-style: none;
+    padding-left: 0;
+  }
+
+  .card ul li {
+    margin-bottom: 8px;
+  }
+
+  .card a {
+    text-decoration: none;
+    color: var(--primary-color);
+  }
+
+  .todo {
+    margin-top: 40px;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .todo h2 {
+    border-bottom: 2px solid var(--primary-color);
+    padding-bottom: 5px;
+  }
+
+  #todo-list {
+    list-style: none;
+    padding-left: 0;
+  }
+
+  #todo-list li {
+    padding: 8px 10px;
+    border-bottom: 1px solid #ddd;
+    cursor: pointer;
+  }
+
+  #todo-list li.completed {
+    text-decoration: line-through;
+    color: gray;
+  }
+
+  #todo-input {
+    width: 80%;
+    padding: 8px;
+    margin-top: 10px;
+  }
+
+  #add-todo-btn {
+    padding: 8px 15px;
+    margin-left: 5px;
+    cursor: pointer;
+    background-color: var(--primary-color);
+    border: none;
+    color: white;
+    border-radius: 5px;
+  }
+
+  /* Charts section */
+  .charts {
+    margin-top: 50px;
+    max-width: 900px;
+    margin-left: auto;
+    margin-right: auto;
+    display: flex;
+    justify-content: space-around;
+    gap: 40px;
+  }
+
+  canvas {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+  }
+
 </style>
 </head>
 <body>
-  <h1>My Dashboard Starter</h1>
 
-  <div class="card">
-    <h3>To-Do</h3>
-    <ul>
-      <li>Learn GitHub Pages</li>
-      <li>Build cool dashboard</li>
-    </ul>
-  </div>
+<header></header>
 
-  <div class="card">
-    <h3>Quick Links</h3>
-    <a href="https://github.com" target="_blank">GitHub</a><br />
-    <a href="https://notion.so" target="_blank">Notion</a>
-  </div>
+<main>
+  <h1>My Personal Dashboard</h1>
+
+  <section class="links-section">
+    <div class="card">
+      <h2>Work Links</h2>
+      <ul>
+        <li><a href="https://work-email.example.com" target="_blank">Work Email</a></li>
+        <li><a href="https://work-projects.example.com" target="_blank">Projects</a></li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h2>School Links</h2>
+      <ul>
+        <li><a href="https://school-portal.example.com" target="_blank">School Portal</a></li>
+        <li><a href="https://online-classes.example.com" target="_blank">Online Classes</a></li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h2>Personal Links</h2>
+      <ul>
+        <li><a href="https://personal-email.example.com" target="_blank">Personal Email</a></li>
+        <li><a href="https://social-media.example.com" target="_blank">Social Media</a></li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="todo">
+    <h2>To-Do List</h2>
+    <ul id="todo-list"></ul>
+    <input type="text" id="todo-input" placeholder="Add a new task..." />
+    <button id="add-todo-btn">Add</button>
+  </section>
+
+  <section class="charts">
+    <canvas id="barChart" width="400" height="300"></canvas>
+    <canvas id="pieChart" width="400" height="300"></canvas>
+  </section>
+</main>
+
+<script>
+  // To-Do List logic
+  const todoList = document.getElementById('todo-list');
+  const todoInput = document.getElementById('todo-input');
+  const addTodoBtn = document.getElementById('add-todo-btn');
+
+  function saveTodos() {
+    const tasks = [];
+    todoList.querySelectorAll('li').forEach(li => {
+      tasks.push({text: li.textContent, completed: li.classList.contains('completed')});
+    });
+    localStorage.setItem('todos', JSON.stringify(tasks));
+  }
+
+  function loadTodos() {
+    const tasks = JSON.parse(localStorage.getItem('todos') || '[]');
+    tasks.forEach(task => {
+      addTodoItem(task.text, task.completed);
+    });
+  }
+
+  function addTodoItem(text, completed = false) {
+    const li = document.createElement('li');
+    li.textContent = text;
+    if (completed) li.classList.add('completed');
+    li.onclick = () => {
+      li.classList.toggle('completed');
+      saveTodos();
+    };
+    todoList.appendChild(li);
+  }
+
+  addTodoBtn.onclick = () => {
+    const text = todoInput.value.trim();
+    if (text) {
+      addTodoItem(text);
+      todoInput.value = '';
+      saveTodos();
+    }
+  };
+
+  loadTodos();
+
+  // Chart.js setup
+  const barCtx = document.getElementById('barChart').getContext('2d');
+  const barChart = new Chart(barCtx, {
+    type: 'bar',
+    data: {
+      labels: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'],
+      datasets: [{
+        label: 'Work Hours',
+        data: [8, 7, 6, 7, 8],
+        backgroundColor: 'rgba(74,144,226,0.7)',
+      }]
+    },
+    options: {
+      responsive: false,
+      scales: { y: { beginAtZero: true } }
+    }
+  });
+
+  const pieCtx = document.getElementById('pieChart').getContext('2d');
+  const pieChart = new Chart(pieCtx, {
+    type: 'pie',
+    data: {
+      labels: ['Work', 'School', 'Personal'],
+      datasets: [{
+        label: 'Time Spent',
+        data: [40, 30, 30],
+        backgroundColor: [
+          'rgba(74,144,226,0.7)',
+          'rgba(100, 149, 237, 0.7)',
+          'rgba(255, 165, 0, 0.7)'
+        ],
+      }]
+    },
+    options: {
+      responsive: false
+    }
+  });
+</script>
 
 </body>
 </html>
