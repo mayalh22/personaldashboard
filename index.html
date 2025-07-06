@@ -1,109 +1,142 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>My Personal Dashboard</title>
-  <style>
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background-color: #f5f5f5;
-      color: #333;
-    }
-    header {
-      background-color: #4a90e2;
-      color: white;
-      padding: 1em;
-      text-align: center;
-    }
-    .container {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: 20px;
-      padding: 20px;
-    }
-    .card {
-      background: white;
-      padding: 15px;
-      border-radius: 8px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-    }
-    h2 {
-      margin-top: 0;
-    }
-    ul {
-      list-style: none;
-      padding-left: 0;
-    }
-    li {
-      padding: 6px 0;
-      border-bottom: 1px solid #eee;
-    }
-    input[type="text"] {
-      width: 80%;
-      padding: 8px;
-      margin-top: 10px;
-    }
-    button {
-      padding: 8px 12px;
-      margin-top: 10px;
-      cursor: pointer;
-    }
-    a {
-      display: block;
-      color: #4a90e2;
-      text-decoration: none;
-      margin-bottom: 6px;
-    }
-  </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Mini Kinopio-like Dashboard</title>
+<style>
+  body, html {
+    margin: 0; padding: 0; height: 100%;
+    font-family: Arial, sans-serif;
+    background: #f0f0f0;
+    overflow: hidden;
+  }
+  #canvas {
+    position: relative;
+    width: 100vw; height: 100vh;
+    background: #fff;
+  }
+  .card {
+    position: absolute;
+    width: 200px;
+    min-height: 100px;
+    padding: 10px;
+    background: #fffbdd;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    box-shadow: 2px 2px 6px rgba(0,0,0,0.1);
+    cursor: grab;
+    user-select: none;
+  }
+  .card textarea {
+    width: 100%;
+    height: 70px;
+    border: none;
+    background: transparent;
+    resize: none;
+    font-family: inherit;
+    font-size: 14px;
+  }
+  #addCardBtn {
+    position: fixed;
+    top: 10px; right: 10px;
+    padding: 10px 15px;
+    background: #4a90e2;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-weight: bold;
+    cursor: pointer;
+  }
+</style>
 </head>
 <body>
 
-<header>
-  <h1>🧠 My Personal Dashboard</h1>
-</header>
-
-<div class="container">
-
-  <!-- To-Do List -->
-  <div class="card">
-    <h2>✅ To-Do List</h2>
-    <ul id="todo-list"></ul>
-    <input type="text" id="todo-input" placeholder="New task...">
-    <button onclick="addTodo()">Add</button>
-  </div>
-
-  <!-- Quick Links -->
-  <div class="card">
-    <h2>🔗 Quick Links</h2>
-    <a href="https://gmail.com" target="_blank">📧 Gmail</a>
-    <a href="https://calendar.google.com" target="_blank">📅 Google Calendar</a>
-    <a href="https://www.notion.so" target="_blank">🗒️ Notion</a>
-    <a href="https://github.com" target="_blank">🐱 GitHub</a>
-  </div>
-
-  <!-- Notes -->
-  <div class="card">
-    <h2>🗒️ Notes</h2>
-    <textarea id="notes" rows="8" style="width:100%;" placeholder="Write your notes here..."></textarea>
-  </div>
-
-</div>
+<button id="addCardBtn">+ Add Card</button>
+<div id="canvas"></div>
 
 <script>
-  // Basic To-Do List
-  function addTodo() {
-    const input = document.getElementById('todo-input');
-    const list = document.getElementById('todo-list');
-    if (input.value.trim() !== '') {
-      const li = document.createElement('li');
-      li.textContent = input.value;
-      li.onclick = () => li.style.textDecoration = 'line-through';
-      list.appendChild(li);
-      input.value = '';
-    }
+  const canvas = document.getElementById('canvas');
+  const addCardBtn = document.getElementById('addCardBtn');
+
+  let cards = [];
+
+  function createCard(x = 50, y = 50, text = '') {
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.style.left = x + 'px';
+    card.style.top = y + 'px';
+
+    const textarea = document.createElement('textarea');
+    textarea.value = text;
+    card.appendChild(textarea);
+
+    canvas.appendChild(card);
+
+    // Drag functionality
+    let offsetX, offsetY, isDragging = false;
+
+    card.addEventListener('mousedown', e => {
+      if (e.target !== textarea) {  // only drag if not editing text
+        isDragging = true;
+        offsetX = e.clientX - card.offsetLeft;
+        offsetY = e.clientY - card.offsetTop;
+        card.style.cursor = 'grabbing';
+      }
+    });
+
+    window.addEventListener('mouseup', () => {
+      if (isDragging) {
+        isDragging = false;
+        card.style.cursor = 'grab';
+        saveCards(); // Save positions on drag end
+      }
+    });
+
+    window.addEventListener('mousemove', e => {
+      if (isDragging) {
+        let newX = e.clientX - offsetX;
+        let newY = e.clientY - offsetY;
+
+        // Keep cards inside canvas
+        newX = Math.max(0, Math.min(newX, window.innerWidth - card.offsetWidth));
+        newY = Math.max(0, Math.min(newY, window.innerHeight - card.offsetHeight));
+
+        card.style.left = newX + 'px';
+        card.style.top = newY + 'px';
+      }
+    });
+
+    cards.push({el: card, textarea});
+
+    textarea.addEventListener('input', saveCards);
+
+    return card;
   }
+
+  function saveCards() {
+    const data = cards.map(c => ({
+      x: parseInt(c.el.style.left),
+      y: parseInt(c.el.style.top),
+      text: c.textarea.value
+    }));
+    localStorage.setItem('myDashboardCards', JSON.stringify(data));
+  }
+
+  function loadCards() {
+    const data = JSON.parse(localStorage.getItem('myDashboardCards') || '[]');
+    data.forEach(cardData => {
+      createCard(cardData.x, cardData.y, cardData.text);
+    });
+  }
+
+  addCardBtn.onclick = () => {
+    createCard(50, 50, '');
+    saveCards();
+  };
+
+  // Load cards on startup
+  loadCards();
 </script>
 
 </body>
